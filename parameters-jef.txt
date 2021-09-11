@@ -1,0 +1,14 @@
+tstart=0
+tend=200
+lambda=0.98
+w1=0
+w2=0
+w3=-1
+gamma11=0
+gamma12=1
+gamma13=0
+gamma22=0
+gamma23=0
+gamma33=0
+CI=0
+do_reset=1

@@ -1,0 +1,117 @@
+\documentclass{amsart}
+
+\newcommand{\e}{{\mathbf e}}
+\newcommand\tr{\mathop{\text{tr}}}
+
+\title{Using the FEC Software}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+The {\tt fec} software is invoked by the command
+\begin{center}
+{\tt fec -p parameter-file.txt}
+\end{center}
+where {\tt parameter-file.txt} is a text file that sets various parameters, described below.  The command can be invoked with two other command line options, for example:
+\begin{center}
+{\tt fec -p parameter-file.txt -o output-file -v10}
+\end{center}
+where {\tt output-file} is the output file, which will default to {\tt s.out} if not specified, and {\tt -v} denotes verbose output, and if followed by a number $n$, will write out to the console every $n$th time it writes data to the output file.
+
+The program {\tt fec} uses the Fast Exact Closure (FEC) to solve Jeffery's equation \cite{jeffery} with diffusion for the second order moment tensor $A$:
+$$ \frac {\partial A}{\partial t} = \tfrac12(\Omega\cdot A - A\cdot\Omega + \lambda(\Gamma\cdot A+A\cdot \Gamma) - 2 \lambda \mathbb A:\Gamma) + D_r (2I-6A) ,$$
+where $\Gamma$ is the rate of strain tensor, $\Omega$ is the vorticity tensor, and $\mathbb A$ is the fourth order moment tensor computed from $A$ using the exact closure.
+
+\section*{Basic Parameters}
+
+\noindent
+The parameter file consists of a number of lines, each of the form
+\begin{center}
+{\tt parameter=value}
+\end{center}
+The order in which they are written in the parameter file is unimportant.
+
+\begin{itemize}
+\item The start time and stop time are set by parameters {\tt tstart} and {\tt tend}.
+\item The rate of strain tensor is set by parameters {\tt gamma11}, {\tt gamma12}, {\tt gamma13}, {\tt gamma22}, {\tt gamma23}, {\tt gamma33}.
+\item The vorticity is set by parameters {\tt w1}, {\tt w2}, {\tt w3}.
+\item The initial state is $\psi = 1/4\pi$.  Later versions of the software may allow this to be different.
+\item By default the program will solve the differential equations using the order four-five Runge-Kutta-Fehlberg method.
+\item The parameter set as {\tt ode\_rk\_4=1} will cause the program will use the order four Runge-Kutta method.
+\item For the Runge-Kutta method, the step size of time is set by the parameter {\tt h}.  For adaptive methods, this parameter sets the initial step size of time.  This defaults to $10^{-3}$ if not set.
+\item For the adaptive Runge-Kutta-Fehlberg method, the parameter {\tt tol} sets the desired error.  This defaults to $10^{-3}$ if it is not set.
+\item Data will be printed to the output file every {\tt print\_every} time steps.  This defaults to $1$ if it is not set.
+\item The parameter set as {\tt do\_reset=1} makes the program slightly slower, but slightly more accurate in the case that the eigenvalues of $A$ are sometimes not all distinct.
+\end{itemize}
+
+\section*{Output}
+
+\noindent
+The program, by default, will write to the output file a series of lines containing
+\begin{center}$t$ $a_{11}$ $a_{12}$ $a_{13}$ $a_{22}$ $a_{23}$ $a_{33}$\end{center}
+where $a_{ij}$ denotes the entries of $A$.  If the command line option {\tt -v} with a number is specified, the program will write this same information to the console.  Here $a_{ij}$ are the coefficients of the second moments tensor.
+
+\section*{Folgar-Tucker model}
+
+\noindent
+The program will default to solving Jeffery's equation with the Folgar-Tucker diffusion term \cite{folgar}.  This sets the diffusion term to $ D_r = C_I \gamma $.
+Here, and elsewhere, $\gamma = \left(\frac12\Gamma:\Gamma\right)^{1/2}$.
+\begin{itemize}
+\item The parameter {\tt lambda} is the Jeffery's parameter $\lambda$.
+\item The parameter {\tt CI} sets the parameter $C_I$.
+\end{itemize}
+
+\section*{The ARD model of Phelps and Tucker}
+
+\noindent
+This ``Anisotropic Rotary Diffusion'' model is described in \cite{ard}.
+\begin{align*}
+\frac {\partial A}{\partial t} = &\tfrac12(\Omega\cdot A - A\cdot\Omega + \lambda(\Gamma\cdot A+A\cdot \Gamma) - 2 \lambda \mathbb A:\Gamma) \\
+& + 2D_r -2(\tr D_r)A - 5(A\cdot D_r+D_r\cdot A) + 10 \mathbb A:D_r .
+\end{align*}
+Here
+$$ D_r = b_1 \gamma I + b_2 \gamma A + b_3 \gamma A^2 + \tfrac12{b_4} \Gamma + \tfrac14{b_5}\gamma^{-1} \Gamma^2 .$$
+
+\begin{itemize}
+\item The parameter set as {\tt do\_ard=1} causes ARD to be used.
+\item The parameters {\tt b1}, {\tt b2}, {\tt b3}, {\tt b4} and {\tt b5} set $b_1$, $b_2$, $b_3$, $b_4$ and $b_5$.
+\end{itemize}
+
+\section*{The RSC model of Wang, O'Gara and Tucker}
+
+\noindent
+This causes an artificial scaled reduction of the evolution of $\psi$, the ``Reduced-Strain Closure" model.  This can be used in conjunction with any of the other models.  It is described in \cite{rsc}.  It causes the P.D.E.\ 
+$$ \frac{\partial A}{\partial t} = F(A),$$
+to be replaced by
+$$ \frac{\partial A}{\partial t} = F(A) - (1-\kappa)\mathbb M: F(A),$$
+where $\mathbb M = \sum_{i=1}^3 \e_i\e_i\e_i\e_i$, with $\e_1$, $\e_2$, $\e_3$ being the orthonormal eigenvectors of $A$.
+
+This method has intellectual property restrictions \cite{rsc-pat}.  If you use {\tt do\_rsc=1}, the program will interrogate you to see if you comply with this patent.  You may switch off the interrogation by setting the environment variable {\tt MAY\_USE\_PATENT\_7266469}.
+
+\begin{itemize}
+\item The parameter set as {\tt do\_rsc=1} causes RSC to take place.
+\item The parameter {\tt kappa} sets the scale reduction factor $\kappa$.
+\end{itemize}
+
+\section*{Acknowledgments}
+
+\noindent
+This work was supported by the National Science Foundation, Division of Civil, Mechanical and Manufacturing Innovation, award number 0727399 (NSF CMMI 0727399).
+
+\begin{thebibliography}{99}
+\bibitem{jeffery}
+G.B. Jeffery, The Motion of Ellipsoidal Particles Immersed in a Viscous Fluid, Proceedings of the Royal Society of London A {\bf 102}, 161-179, (1923).
+\bibitem{folgar}
+F.P. Folgar and C.L. Tucker, Orientation Behavior of Fibers in Concentrated Suspensions, Jn. of Reinforced Plastics and Composites {\bf 3}, 98-119 (1984).
+\bibitem{rsc-pat}
+C.L. Tucker III, J. Wang, and J.F. O'Gara, Method and article of manufacture for determining a rate of change of orientation of a plurality of fibers disposed in a fluid. U.S. Patent No. 7,266,469 (2007).
+\bibitem{rsc}
+Jin Wang, John F. O'Gara, and Charles L. Tucker, III, An objective model for slow orientation kinetics in concentrated fiber suspensions: Theory and rheological evidence, J. Rheology {\bf 52}, 1179-1200 (2008).
+\bibitem{ard}
+Jay H. Phelps and Charles L. Tucker III, An anisotropic rotary diffusion model for fiber orientation in short- and long-fiber thermoplastics, Journal of Non-Newtonian Fluid Mechanics, to appear (2008).
+\end{thebibliography}
+
+
+\end{document}

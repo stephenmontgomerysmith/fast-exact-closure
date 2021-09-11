@@ -1,0 +1,13 @@
+tstart=0
+tend=150
+lambda=1
+w1=0
+w2=0
+w3=-1
+gamma11=0.2
+gamma12=1
+gamma13=0
+gamma22=-0.2
+gamma23=0
+gamma33=0
+CI=0.01
