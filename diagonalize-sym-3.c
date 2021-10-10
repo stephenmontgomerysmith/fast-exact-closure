@@ -2,7 +2,7 @@
 
 /* 
  * Find the eigenvalues of a symmetric matrix A using Jacobi Method.  The
- * eigenvalues are returned in eval[0],...,eval[n].  The eigenvalues
+ * eigenvalues are returned in eval[0],...,eval[n-1].  The eigenvectors
  * are returned in evec[0],...,evec[n-1], and are each norm one.  The
  * algorithm destroys the entries of A.
  *
