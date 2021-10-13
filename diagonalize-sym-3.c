@@ -3,8 +3,9 @@
 /* 
  * Find the eigenvalues of a symmetric matrix A using Jacobi Method.  The
  * eigenvalues are returned in eval[0],...,eval[n-1].  The eigenvectors
- * are returned in evec[0],...,evec[n-1], and are each norm one.  The
- * algorithm destroys the entries of A.
+ * are returned in the columns of evec, evec[0],...,evec[n-1], and are each 
+ * norm one. (The elements of eval are stored in row order.)  The algorithm 
+ * destroys the entries of A.
  *
  * The Jacobi Method works by repeatedly diagonalizing each 2 by 2 diagonal
  * sub-matrix.  Since orthogonal changes of basis preserve the sum of the
